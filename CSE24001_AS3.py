@@ -1,5 +1,5 @@
 #26/7/26
-#Used AI for k means and A10 and bit of help with A8
+#I Used AI for k means and A10 and bit of help with A8
 import scipy 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -83,13 +83,13 @@ def centroid(cluster):
         return []
 
     c=[]
-    cols=len(cluster[0])
+    cols=len(cluster[0]) # this is the no of columns like 2 for [2,3]
 
     for j in range(cols):
         s=0
         for i in range(len(cluster)):
             s+=cluster[i][j]
-        c.append(s/len(cluster))
+        c.append(s/len(cluster)) # finding the centroid 
 
     return c
 
@@ -97,18 +97,18 @@ def centroid(cluster):
 def kmeans(data,k):
     centroids=[]
     for i in range(k):
-        centroids.append(data[i])
+        centroids.append(data[i])  #just picking first k
 
     while True:
         clusters=[]
         for i in range(k):
-            clusters.append([])
+            clusters.append([]) # k clusters
 
         for point in data:
-            md=minkymink(point,centroids[0],2)
+            md=minkymink(point,centroids[0],2)  # finding d from frst centroid
             idx=0
 
-            for j in range(1,k):
+            for j in range(1,k):  # compare with the other centroids
                 d=minkymink(point,centroids[j],2)
                 if d<md:
                     md=d

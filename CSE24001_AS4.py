@@ -1,0 +1,195 @@
+#A1 -LAB 03 REDONE USING AI 
+
+import scipy
+import pandas as pd
+import numpy as np
+import datetime
+import math
+import matplotlib.pyplot as plt
+# Label Encoding A2
+def A2lbl(df, col, mapping):    #AI : CHATGPT
+    """
+    df      : pandas DataFrame
+    col     : column name to encode
+    mapping : dictionary containing label mappings
+              Example: {"Red":0, "Blue":1, "Green":2}
+    """
+    df[col] = df[col].map(mapping)
+    return df
+
+
+# One-Hot Encoding
+def A2onehot(df, col):
+    """
+    df  : pandas DataFrame
+    col : column name to one-hot encode
+    """
+    df = pd.get_dummies(df, columns=[col], dtype=int)
+    return df
+import pandas as pd
+
+def preprocess_marketing_campaign(df):
+    # Label Encoding for ordinal features
+    if "Education" in df.columns:
+        edu_map = {"Basic":0, "2n Cycle":1, "Graduation":2, "Master":3, "PhD":4}
+        df = A2lbl(df, "Education", edu_map)
+    
+    if "Marital_Status" in df.columns:
+        marital_map = {"Single":0, "Together":1, "Married":2, "Divorced":3, "Widow":4}
+        df = A2lbl(df, "Marital_Status", marital_map)
+    
+    # One-Hot Encoding for nominal features
+    for col in ["Country", "Response"]:
+        if col in df.columns:
+            df = A2onehot(df, col)
+    
+    print("Number of features after encoding:", df.shape[1])
+    return df
+
+def A4(vec1, vec2, p):
+    if len(vec1) != len(vec2):
+        return "Vectors must have the same length."
+
+    distance = 0
+
+    for i in range(len(vec1)):
+        distance += abs(vec1[i] - vec2[i]) ** p
+
+    distance = distance ** (1 / p)
+
+    return distance
+def A7(vec1, vec2):
+    if len(vec1) != len(vec2):
+        return "Vectors must have the same length."
+
+    dot = 0
+    norm1 = 0
+    norm2 = 0
+
+    for i in range(len(vec1)):
+        dot += vec1[i] * vec2[i]
+        norm1 += vec1[i] ** 2
+        norm2 += vec2[i] ** 2
+
+    norm1 = math.sqrt(norm1)
+    norm2 = math.sqrt(norm2)
+
+    return dot, norm1, norm2
+def A8(data):
+    n = 0
+    mean = 0
+    M2 = 0
+
+    for x in data:
+        n += 1
+        delta = x - mean
+        mean += delta / n
+        delta2 = x - mean
+        M2 += delta * delta2
+
+    if n == 0:
+        return None
+
+    variance = M2 / n          # Population variance
+    std_dev = math.sqrt(variance)
+
+    return mean, variance, std_dev
+
+#main function 
+#A2
+print("-----------Question A2---------")
+df = pd.DataFrame({
+    "Student": ["Alice", "Bob", "Charlie"],
+    "Club": ["Music", "Sports", "Music"]
+})
+
+# Label Encoding
+mapping = {
+    "Music": 0,
+    "Sports": 1
+}
+
+df1 = A2lbl(df.copy(), "Club", mapping)
+print(df1)
+
+#A3
+print("-----------Question A3---------")
+df2=pd.read_excel("Lab Session Data.xlsx",sheet_name="marketing_campaign")
+encoded_df = preprocess_marketing_campaign(df2)
+print(encoded_df.head())
+
+#A4
+v1 = [1, 2, 3]
+v2 = [4, 6, 8]
+
+print("Manhattan Distance:", A4(v1, v2, 1))
+print("Euclidean Distance:", A4(v1, v2, 2))
+print("Minkowski Distance (p=3):", A4(v1, v2, 3))
+
+#A5
+vec1 = df2.iloc[0].tolist()
+vec1 = [int(x) if isinstance(x, np.integer) else float(x) if isinstance(x, np.floating) else x.strftime("%Y-%m-%d") if isinstance(x, datetime.datetime) else x for x in vec1]
+vec2 = df2.iloc[1].tolist()
+vec2 =[int(x) if isinstance(x, np.integer) else float(x) if isinstance(x, np.floating) else x.strftime("%Y-%m-%d") if isinstance(x, datetime.datetime) else x for x in vec2]
+for i in vec1:
+    if isinstance(i,str):
+        vec1.remove(i)
+for i in vec2:
+    if isinstance(i,str):
+        vec2.remove(i)
+print(vec1)
+print(vec2)
+for p in range(1,11):
+    print(" P VALUE = ",p)
+    ans=A4(vec1,vec2,p)
+    print("Answer: ",ans)
+
+#A6
+ans=scipy.spatial.distance.minkowski(vec1,vec2,3)
+myans=A4(vec1,vec2,3)
+print("Using scipy: ",ans)
+print("Using user defined: ",myans)
+
+#A7
+v1 = [1, 2, 3]
+v2 = [4, 5, 6]
+dot, len1, len2 = A7(v1, v2)
+print("Dot Product:", dot)
+print("Euclidean Length of v1:", len1)
+print("Euclidean Length of v2:", len2)
+print("Dot product using numpy: ",np.dot(v1,v2))
+
+
+#A8
+data = [10, 20, 30, 40, 50]
+
+mean, variance, std = A8(data)
+
+print("Mean:", mean)
+print("Variance:", variance)
+print("Standard Deviation:", std)
+
+#A9
+print("Mean from numpy")
+print(np.mean(vec1))
+
+print("Std from numpy")
+print(np.std(vec1))
+
+#A10
+feature=df2.columns[0]
+
+plt.hist(df2[feature],bins=10)
+plt.title(feature)
+plt.show()
+
+print("Mean:",df2[feature].mean())
+print("Variance:",df2[feature].var())
+
+
+
+
+
+
+
+
