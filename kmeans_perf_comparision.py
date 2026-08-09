@@ -2,7 +2,7 @@ import time
 import math
 import random
 import matplotlib.pyplot as plt
-def make_data(size):
+def make_data(size):    # this function is to generate random data for a given size eg 100 means it will generate 100 random datapoints
     data = []
 
     for i in range(size):
@@ -31,7 +31,9 @@ def mykmeans(data, k):
         centroids.append(c1)
     #print("centroids: ",centroids)
     curr_centroids=centroids.copy()
+    iters=0     #this is only for that no of iterations vs k comparision graph
     while True:
+        iters+=1
         clusters=[]
         for i in range (k):
             clusters.append([])
@@ -63,11 +65,10 @@ def mykmeans(data, k):
         print("centroid: ",centroids[i])
         print(clusters[i])
         #print(dists)'''
-    return clusters,centroids
-        
+    return clusters,centroids,iters   
 
     
-    
+#AI implementation of kmeans:
     
 
     
@@ -100,9 +101,9 @@ def AIkmeans(data, k):
 
     # Initialize centroids
     centroids = data[:k]
-
+    iters=0
     while True:
-
+        iters+=1
         # Create empty clusters
         clusters = [[] for _ in range(k)]
 
@@ -135,13 +136,16 @@ def AIkmeans(data, k):
 
         centroids = newCentroids
 
-    return clusters, centroids
+    return clusters, centroids,iters
 
 #main function
-#TIME TESTING:
 # THIS SAMPLE DATA IS AI GENERATED - i wanted a large dataset
+''' This section is just using data as the parameter and comparing runtime
+between self and AI generated code. In the end it plots the cluster graph but only one
+for self graph replace ans1 with ans in lines 181 and 182 and for ai make it ans1
 '''
 
+'''
 data = [
 
 [1,2],[2,1],[2,2],[3,2],[2,3],[1,3],[3,1],[2,4],[4,2],[3,3],
@@ -174,8 +178,8 @@ else:
     print("Mine is better")
 
 #ans=(clusters,centroids) where clusters - [[],[],[]] and centroids []
-myclusts=ans[0]
-mycents=ans[1]
+myclusts=ans1[0]
+mycents=ans1[1]
 print(mycents)
 
 xpoints=[]
@@ -186,7 +190,15 @@ for i in myclusts:
         ypoints.append(j[1])
 plt.plot(xpoints,ypoints,"o")
 plt.plot([x[0] for x in mycents],[y[1] for y in mycents],'*r')
-plt.show()'''
+plt.xlabel("X coordinate")
+plt.ylabel("Y coordinate")
+plt.show()
+'''
+
+#BELOW CODE IS FOR RUNTIME VS DATASET SIZE COMPARISION:
+#this uses tht makedata function 
+
+'''
 sizes = [100, 500, 1000, 5000, 10000, 20000]
 
 my_times = []
@@ -239,8 +251,57 @@ plt.legend()
 plt.grid()
 
 plt.show()
+'''
+#BELOW CODE TESTS K VALUE VS NO OF ITERATIONS 
+#this is why iter variable was used in the kmeans function- to record no of iterations
+'''
+data = [
 
+[1,2],[2,1],[2,2],[3,2],[2,3],[1,3],[3,1],[2,4],[4,2],[3,3],
+[4,1],[1,4],[5,2],[4,3],[3,5],[5,3],[2,5],[4,4],[5,5],[6,4],
+[6,3],[5,4],[6,5],[4,6],[5,6],
+[50,50],[51,49],[52,50],[50,52],[53,51],[54,50],[52,52],[55,51],[56,50],[54,53],
+[57,52],[58,51],[55,55],[56,54],[57,55],[58,56],[59,54],[60,55],[59,57],[61,56],
+[62,55],[60,58],[61,59],[63,57],[64,58],
+[100,10],[101,11],[102,10],[103,12],[104,11],[105,13],[106,12],[107,11],[108,13],[109,12],
+[110,14],[111,13],[112,15],[113,14],[114,16],[115,15],[116,17],[117,16],[118,18],[119,17],
+[120,19],[121,18],[122,20],[123,19],[124,21],
+[20,100],[21,101],[22,99],[23,102],[24,101],[25,103],[26,102],[27,104],[28,103],[29,105],
+[30,104],[31,106],[32,105],[33,107],[34,106],[35,108],[36,107],[37,109],[38,108],[39,110],
+[40,109],[41,111],[42,110],[43,112],[44,111]
+]
+ans = mykmeans(data, 4)
+ans1 = AIkmeans(data, 4)
 
+print("My iterations:", ans[2])
+print("AI iterations:", ans1[2])
+for k in range(2, 8):
 
-#mykmeans(data,2)
+    ans = mykmeans(data, k)
+    ans1 = AIkmeans(data, k)
 
+    print("k =", k,"| My:", ans[2],"| AI:", ans1[2])
+
+ks = range(2, 8)
+
+my_iterations = []
+ai_iterations = []
+
+for k in ks:
+
+    ans = mykmeans(data, k)
+    ans1 = AIkmeans(data, k)
+
+    my_iterations.append(ans[2])
+    ai_iterations.append(ans1[2])
+
+plt.plot(ks, my_iterations, marker='o', label="My K-means")
+plt.plot(ks, ai_iterations, marker='o', label="AI K-means")
+
+plt.xlabel("Number of clusters (k)")
+plt.ylabel("Iterations to convergence")
+plt.title("K-means Convergence vs Number of Clusters")
+plt.legend()
+plt.grid()
+plt.show()
+'''
