@@ -95,7 +95,73 @@ def A8(data):
 
     return mean, variance, std_dev
 
-#main function 
+
+def distance(p1, p2):
+    s = 0
+    for i in range(len(p1)):
+        s += (p1[i] - p2[i]) ** 2
+    return math.sqrt(s)
+
+
+def centroid(cluster):
+    if len(cluster) == 0:
+        return []
+
+    cols = len(cluster[0])
+    c = []
+
+    for j in range(cols):
+        s = 0
+        for i in range(len(cluster)):
+            s += cluster[i][j]
+        c.append(s / len(cluster))
+
+    return c
+
+
+def kmeans(data, k):
+
+    # Initialize centroids
+    centroids = data[:k]
+
+    while True:
+
+        # Create empty clusters
+        clusters = [[] for _ in range(k)]
+
+        # Assign each point to nearest centroid
+        for point in data:
+
+            minDist = distance(point, centroids[0])
+            index = 0
+
+            for i in range(1, k):
+                d = distance(point, centroids[i])
+                if d < minDist:
+                    minDist = d
+                    index = i
+
+            clusters[index].append(point)
+
+        # Compute new centroids
+        newCentroids = []
+
+        for i in range(k):
+            if len(clusters[i]) == 0:
+                newCentroids.append(centroids[i])
+            else:
+                newCentroids.append(centroid(clusters[i]))
+
+        # Stop if converged
+        if newCentroids == centroids:
+            break
+
+        centroids = newCentroids
+
+    return clusters, centroids
+
+
+'''#main function 
 #A2
 print("-----------Question A2---------")
 df = pd.DataFrame({
@@ -186,6 +252,182 @@ plt.show()
 print("Mean:",df2[feature].mean())
 print("Variance:",df2[feature].var())
 
+#A11
+data = [
+    [1,1],
+    [1.5,2],
+    [3,4],
+    [5,7],
+    [3.5,5],
+    [4.5,5],
+    [3.5,4.5]
+]
+
+clusters, centroids = kmeans(data, 2)
+
+print("Clusters:")
+for c in clusters:
+    print(c)
+
+print("\nCentroids:")
+print(centroids)'''
+# ------------------ A2lbl ------------------
+print("\n--- A2lbl ---")
+
+# Case 1: Normal mapping
+df = pd.DataFrame({"Club":["Music","Sports","Music"]})
+mapping = {"Music":0, "Sports":1}
+print(A2lbl(df.copy(), "Club", mapping))
+
+# Case 2: Missing mapping value
+df = pd.DataFrame({"Club":["Music","Dance"]})
+print(A2lbl(df.copy(), "Club", mapping))
+
+# Case 3: Empty dataframe
+df = pd.DataFrame({"Club":[]})
+print(A2lbl(df.copy(), "Club", mapping))
+
+
+# ------------------ A2onehot ------------------
+print("\n--- A2onehot ---")
+
+# Case 1: Two categories
+df = pd.DataFrame({"Color":["Red","Blue","Red"]})
+print(A2onehot(df.copy(), "Color"))
+
+# Case 2: Single category
+df = pd.DataFrame({"Color":["Red","Red","Red"]})
+print(A2onehot(df.copy(), "Color"))
+
+# Case 3: Empty dataframe
+df = pd.DataFrame({"Color":[]})
+print(A2onehot(df.copy(), "Color"))
+
+
+# ------------------ A4 ------------------
+print("\n--- A4 ---")
+
+# Case 1: Manhattan Distance
+print(A4([1,2,3],[4,6,8],1))
+
+# Case 2: Euclidean Distance
+print(A4([1,2,3],[4,6,8],2))
+
+# Case 3: Minkowski Distance (p=3)
+print(A4([1,2,3],[4,6,8],3))
+
+
+# ------------------ A7 ------------------
+print("\n--- A7 ---")
+
+# Case 1: Normal vectors
+print(A7([3,4],[5,12]))
+
+# Case 2: Zero vectors
+print(A7([0,0],[0,0]))
+
+# Case 3: Dimension mismatch
+print(A7([1,2],[1,2,3]))
+
+
+# ------------------ A8 ------------------
+print("\n--- A8 ---")
+
+# Case 1: General dataset
+print(A8([10,20,30,40,50]))
+
+# Case 2: Constant values
+print(A8([5,5,5,5]))
+
+# Case 3: Negative values
+print(A8([-2,-1,0,1,2]))
+
+
+# ------------------ distance ------------------
+print("\n--- distance ---")
+
+# Case 1
+print(distance([1,2],[4,6]))
+
+# Case 2
+print(distance([0,0],[0,0]))
+
+# Case 3
+print(distance([2,5],[5,9]))
+
+
+# ------------------ centroid ------------------
+print("\n--- centroid ---")
+
+# Case 1
+print(centroid([[1,2],[3,4],[5,6]]))
+
+# Case 2
+print(centroid([[10,20]]))
+
+# Case 3
+print(centroid([]))
+
+
+# ------------------ kmeans ------------------
+print("\n--- kmeans ---")
+
+# Case 1: Two obvious clusters
+data = [
+    [1,1],
+    [1.5,2],
+    [8,8],
+    [9,9]
+]
+clusters, centroids = kmeans(data,2)
+print(clusters)
+print(centroids)
+
+# Case 2: Single cluster
+data = [
+    [1,1],
+    [2,2],
+    [3,3]
+]
+clusters, centroids = kmeans(data,1)
+print(clusters)
+print(centroids)
+
+# Case 3: Three clusters
+data = [
+    [1,1],
+    [1,2],
+    [5,5],
+    [6,5],
+    [9,9],
+    [10,10]
+]
+clusters, centroids = kmeans(data,3)
+print(clusters)
+print(centroids)
+
+
+# ------------------ preprocess_marketing_campaign ------------------
+print("\n--- preprocess_marketing_campaign ---")
+
+# Case 1: Complete dataframe
+df = pd.DataFrame({
+    "Education":["Graduation","PhD"],
+    "Marital_Status":["Single","Married"],
+    "Country":["India","USA"],
+    "Response":["Yes","No"]
+})
+print(preprocess_marketing_campaign(df.copy()))
+
+# Case 2: Missing optional columns
+df = pd.DataFrame({
+    "Education":["Basic","Master"]
+})
+print(preprocess_marketing_campaign(df.copy()))
+
+# Case 3: Empty dataframe
+df = pd.DataFrame(columns=["Education","Marital_Status","Country","Response"])
+print(preprocess_marketing_campaign(df.copy()))
 
 
 

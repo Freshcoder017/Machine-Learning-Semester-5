@@ -49,7 +49,7 @@ def A8(lst):
          v+=(lst[i]-mean)**2
     v=v/len(lst)
     sdiv=v**0.5
-    print(v,sdiv)
+    return mean,v,sdiv
 def A8matrix(mat):
     means=[]
     vars=[]
@@ -78,59 +78,72 @@ def A8matrix(mat):
     return means,vars,sds
 
 
-def centroid(cluster):
-    if len(cluster)==0:
-        return []
+def kmeans(data, k, max_iter=300, tol=1e-4):
+    centroids = []  # this is gonna be my list of center points
 
-    c=[]
-    cols=len(cluster[0]) # this is the no of columns like 2 for [2,3]
-
-    for j in range(cols):
-        s=0
-        for i in range(len(cluster)):
-            s+=cluster[i][j]
-        c.append(s/len(cluster)) # finding the centroid 
-
-    return c
-
-
-def kmeans(data,k):
-    centroids=[]
     for i in range(k):
-        centroids.append(data[i])  #just picking first k
+        first = data[i]
+        centroids.append(first)  # just picking first k
 
-    while True:
-        clusters=[]
+    for iteration in range(max_iter):
+        clusters = []
         for i in range(k):
-            clusters.append([]) # k clusters
+            emclus = []  # basically an empty cluster list
+            clusters.append(emclus)
 
-        for point in data:
-            md=minkymink(point,centroids[0],2)  # finding d from frst centroid
-            idx=0
+        for i in range(len(data)):
+            point = data[i]
 
-            for j in range(1,k):  # compare with the other centroids
-                d=minkymink(point,centroids[j],2)
-                if d<md:
-                    md=d
-                    idx=j
+            firstc = centroids[0]  # finding the dist from 1st centroid
+            md = minkymink(point, firstc, 2)
+            idx = 0
 
-            clusters[idx].append(point)
+            for j in range(1, k):
+                curr = centroids[j]
+                d = minkymink(point, curr, 2)
 
-        newcentroids=[]
+                if d < md:  # if its closer
+                    md = d
+                    idx = j
 
-        for cluster in clusters:
-            if len(cluster)==0:
-                newcentroids.append([])
+            target = clusters[idx]
+            target.append(point)  # point append karoo
+
+        newcentroids = []  # new centers
+
+        for cid in range(len(clusters)):
+            cluster = clusters[cid]  # this is a cluster
+
+            if len(cluster) == 0:
+                empty_center = centroids[cid]  # retain previous center
+                newcentroids.append(empty_center)
             else:
-                newcentroids.append(centroid(cluster))
+                c = []
+                cols = len(cluster[0])  # no of columns
 
-        if newcentroids==centroids:
+                for j in range(cols):
+                    s = 0
+
+                    for i in range(len(cluster)):
+                        current_point = cluster[i]
+                        val = current_point[j]
+                        s = s + val
+
+                    total_points = len(cluster)
+                    mean_value = s / total_points  # col avg
+                    c.append(mean_value)
+
+                newcentroids.append(c)
+
+        shift = max(
+            minkymink(centroids[i], newcentroids[i], 2) for i in range(k)
+        )
+        centroids = newcentroids
+
+        if shift < tol:  # CONVERGENCE CONDITIONN
             break
 
-        centroids=newcentroids
-
-    return centroids,clusters    
-
+    return centroids, clusters
 def A2lbl(df,col,mapping):
     try:
         df['Encoded']=df[col].map(mapping)
@@ -161,7 +174,7 @@ def minkymink(vec1,vec2,p):
     return d
 
 
-     
+'''     
 #main
 #A2
 data=pd.DataFrame({'Students':['Satya','Ishaan','Thejas'],'Clubs':['club01','club2','club3']})     
@@ -243,6 +256,82 @@ for i in centroids:
     print(i)
 
 for i in range(len(clusters)):
-    print("Cluster",i+1,"size:",len(clusters[i]))
-         
+    print("Cluster",i+1,"has :",len(clusters[i]), "Elements")
 
+# output was cluster 1- 2240, 2 and 3 had 0 elements so its gotta be bad clustering/ elbow point occurs at k=1????
+'''
+
+# =====AI GENERATED UNIT TEST CASES=======
+# FUNCTION : A2LBL
+# case 1
+df = pd.DataFrame({"Club":["A","B","A"]})
+mapping = {"A":1,"B":2}
+
+print(A2lbl(df,"Club",mapping))
+# case 2 - invalid col
+df = pd.DataFrame({"Club":["A","B"]})
+mapping={"A":1}
+
+A2lbl(df,"WrongColumn",mapping)
+# case 3: missing mapp
+df=pd.DataFrame({"Club":["A","C"]})
+mapping={"A":1}
+
+print(A2lbl(df,"Club",mapping))
+
+#FUNCTION : A2Onehot
+#CASE 1:
+df=pd.DataFrame({"Color":["Red","Blue","Red"]})
+print(A2onehot(df,"Color"))
+#case2:
+df=pd.DataFrame({"Color":["Red","Red"]})
+print(A2onehot(df,"Color"))
+#case 3:
+print(A2onehot(df,"ABC"))
+
+#FUNCTION: A4
+#case1:
+print(A4([1,2,3],[4,5,6]))
+#case2:
+print(A4([1,2],[1,2]))
+#case3:
+print(A4([1,2],[1,2,3]))
+
+#FUNCTION : MINKYMINK
+print(minkymink([1,2],[4,6],1))  
+
+# FUNCTION : A7
+#case1:
+print(A7([3,4],[5,12]))
+#case 2:
+print(A7([0,0],[0,0]))
+#case 3:
+print(A7([1,2],[1,2,3]))
+
+# FUNCTION : A8:
+#case 1:
+print(A8([10,20,30,40,50]))
+#case2:
+print(A8([5,5,5,5]))
+#case3:
+print(A8([-2,-1,0,1,2]))
+
+#FUNCTION: A8MATRIX
+#cse1
+print(A8matrix(mat=[
+[1,2],
+[3,4],
+[5,6]
+]))
+#case2
+print(A8matrix(mat=[
+[5,5],
+[5,5]
+]))
+
+#FUNCTION: KMEANS
+print(kmeans([[1,1],[1,2],[8,8],[9,9]],k=2))
+#case2
+print(kmeans([[1,1],[2,2],[3,3]],1))
+#case3
+print(kmeans([[1,1],[2,2]],3))
