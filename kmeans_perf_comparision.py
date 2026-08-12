@@ -145,7 +145,7 @@ between self and AI generated code. In the end it plots the cluster graph but on
 for self graph replace ans1 with ans in lines 181 and 182 and for ai make it ans1
 '''
 
-'''
+
 data = [
 
 [1,2],[2,1],[2,2],[3,2],[2,3],[1,3],[3,1],[2,4],[4,2],[3,3],
@@ -193,7 +193,7 @@ plt.plot([x[0] for x in mycents],[y[1] for y in mycents],'*r')
 plt.xlabel("X coordinate")
 plt.ylabel("Y coordinate")
 plt.show()
-'''
+
 
 #BELOW CODE IS FOR RUNTIME VS DATASET SIZE COMPARISION:
 #this uses tht makedata function 

@@ -78,73 +78,55 @@ def A8matrix(mat):
     return means,vars,sds
 
 
-def kmeans(data, k, max_iter=300, tol=1e-4):
-    centroids = []  # this is gonna be my list of center points
 
-    for i in range(k):
-        first = data[i]
-        centroids.append(first)  # just picking first k
+def mykmeans(data, k):
+    clusters=[]
+    for i in range (k):
+        clusters.append([]) # now cluster list will look like this [[],[],[]]- empty
+    datacopy=data.copy()
+    centroids = []
+    for i in range (k):
+        luckyindex=random.randrange(0,len(datacopy))
+        c1=datacopy[luckyindex]
+        datacopy.pop(luckyindex)
+        centroids.append(c1)
+    #print("centroids: ",centroids)
+    curr_centroids=centroids.copy()
+    iters=0     #this is only for that no of iterations vs k comparision graph
+    while True:
+        iters+=1
+        clusters=[]
+        for i in range (k):
+            clusters.append([])
+        for i in data:
+            #print(i)
+            dists=[]
+            for j in curr_centroids:
+                dists.append(minkymink(i,j,2))
+            trucentroid=dists.index(min(dists))
+            clusters[trucentroid].append(i) #putting it into that cluster with min distance
 
-    for iteration in range(max_iter):
-        clusters = []
-        for i in range(k):
-            emclus = []  # basically an empty cluster list
-            clusters.append(emclus)
+        
 
-        for i in range(len(data)):
-            point = data[i]
+        for i in range(len(curr_centroids)):
+            xdim=0
+            ydim=0
+            for j in range(len(clusters[i])):
+                xdim+=clusters[i][j][0]
+                ydim+=clusters[i][j][1]
+            curr_centroids[i]=[xdim/len(clusters[i]),ydim/len(clusters[i])]
 
-            firstc = centroids[0]  # finding the dist from 1st centroid
-            md = minkymink(point, firstc, 2)
-            idx = 0
-
-            for j in range(1, k):
-                curr = centroids[j]
-                d = minkymink(point, curr, 2)
-
-                if d < md:  # if its closer
-                    md = d
-                    idx = j
-
-            target = clusters[idx]
-            target.append(point)  # point append karoo
-
-        newcentroids = []  # new centers
-
-        for cid in range(len(clusters)):
-            cluster = clusters[cid]  # this is a cluster
-
-            if len(cluster) == 0:
-                empty_center = centroids[cid]  # retain previous center
-                newcentroids.append(empty_center)
-            else:
-                c = []
-                cols = len(cluster[0])  # no of columns
-
-                for j in range(cols):
-                    s = 0
-
-                    for i in range(len(cluster)):
-                        current_point = cluster[i]
-                        val = current_point[j]
-                        s = s + val
-
-                    total_points = len(cluster)
-                    mean_value = s / total_points  # col avg
-                    c.append(mean_value)
-
-                newcentroids.append(c)
-
-        shift = max(
-            minkymink(centroids[i], newcentroids[i], 2) for i in range(k)
-        )
-        centroids = newcentroids
-
-        if shift < tol:  # CONVERGENCE CONDITIONN
-            break
-
-    return centroids, clusters
-def A2lbl(df,col,mapping):
+        if curr_centroids==centroids:
+            break           
+        centroids = [x.copy() for x in curr_centroids]
+            
+            #break
+    '''for i in range(len(clusters)):
+        print("-----------CLUSTER-------------")
+        print("centroid: ",centroids[i])
+        print(clusters[i])
+        #print(dists)'''
+    return clusters,centroids,iters def A2lbl(df,col,mapping):
     try:
         df['Encoded']=df[col].map(mapping)
         return df
