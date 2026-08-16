@@ -1,4 +1,11 @@
 import random
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier as knn
+import matplotlib.pyplot as plt
+#def goodformat(df):
+
 def minkymink(vec1,vec2,p):
     d=0
     for i in range(len(vec1)):
@@ -58,22 +65,22 @@ def mykmeans(data, k):
     return clusters,centroids,iters   
 
 
-def myknn(target,data,k):
+def myknn(target,data,k,p):
     mydict={}
     for i in range(len(data)):
-        dist=minkymink(target,data[i],2) # this is now a distance value from the target point to all other points
+        dist=minkymink(target,data[i],p) # this is now a distance value from the target point to all other points
         mydict[i]=dist
     vals=mydict.items()
     vals=[i[1] for i in vals] 
     vals.sort()
-    print(vals)
+    #print(vals)
     neighs=vals[:k]
-    print(neighs)
+    #print(neighs)
     datapts=[]
     for i in neighs:
         for j in mydict:
             if mydict[j]==i:
-                datapts.append(data[j])
+                datapts.append(j)
     #print(datapts)
     return datapts[:k]
 
@@ -81,17 +88,108 @@ def membership(clusters,chosen):
     #its a list of lists
     #chosen is a list of points like [20,100],[40,50]
     memb=[]
-    print(chosen)
+    #print(chosen)
     for i in chosen:
         print("checkign for ",i)
         for j in range(len(clusters)):
             if i in clusters[j]:
                 memb.append(j) # this gotta be the jth cluster so thats basically the name lol
-    print(memb)
+    #print(memb)
+    return memb
 
+
+def superover(members,target,neighs):
+    scores={}
+    #members have classes like [2, 1, 2, 1, 2] and neighs are those points[p1,p2,p3...]
+    for i in members:
+        if i not in scores:
+            scores[i]=0
+    for i in range(len(members)):
+        dis=minkymink(target,neighs[i],2)
+        if dis==0:
+            #print("This belongs to class ",members[i])
+            return members[i]
+            #break
+        #now i update it in dictionary
+        scores[members[i]]+=(1/dis)
+    #print(scores) #{2: 7.278152721522868, 1: 1.084652289093281}
+    clus=-1
+    val=-1
+    for i in scores:
+        if scores[i]>val:
+            val=scores[i]
+            clus=i
+    #print(clus)
+    return clus
+
+# SCIKIT LEARN STUFF
+def A3(data,x,y):
+    xtrain,xtest,ytrain,ytest=train_test_split(x,y,test_size=0.3)
+    #print("xtrain:\n",xtrain,"\nxtest:\n",xtest,"\nytrain:\n",ytrain,"\nytest:\n",ytest)
+    #print(len(ytest))
+    return xtrain,xtest,ytrain,ytest 
+
+def A456(data,x,y,k,testvec=None):
+    neigh=knn(n_neighbors=k)
+    xtrain,xtest,ytrain,ytest=A3(data,x,y)
+    print(neigh.fit(xtrain,ytrain))
+    print(neigh.score(xtest,ytest))
+    try:
+        testvec=np.array(testvec)
+        pred=neigh.predict(testvec.reshape(1,-1))
+        print(pred)
+    #print(X.columns.tolist())
+        #return neigh.score(xtest,ytest)
+    except:
+        pass
+    return neigh.score(xtest,ytest)
+
+
+def fitit(xtrain,ytrain):
+    cxtrain=xtrain.values.tolist()
+    cytrain=ytrain.tolist()
+    return cxtrain,cytrain
+
+#ok so ytest shouldnt be here because thats what we're predicting
+def predictit(xtest,cxtrain,cytrain,k):
+    #xtest=xtest.values.tolist()
+    neighs=myknn(xtest,cxtrain,k,2) #returns the indices
+    lbls=[]
+    for i in range(len(neighs)):
+        lbls.append(cytrain[neighs[i]])
+    print(lbls)
+    scz=lbls.count('schizophrenia')
+    hel=lbls.count('healthy')
+    if scz>hel:
+        return "schizophrenia"
+    else:
+        return "healthy"
+
+def myscore(xtest,ytest,xtrain,ytrain,k):
+    #thepred=predictit(xtest,xtrain.values.tolist(),ytrain.tolist())
+    count=0
+    results=[]
+    for i in range(len(xtest)):
+        lst=xtest.iloc[i].tolist() #because i wanna be passing a list 
+        thepred=predictit(lst,xtrain.values.tolist(),ytrain.tolist(),k)
+        results.append(thepred)
+    for i in range(len(ytest)):
+        if results[i]==ytest.iloc[i]:
+            count+=1
+
+    print(count/len(ytest))
+    return count/len(ytest)
+
+
+
+
+
+
+    
 
 
 #----------------main---------------------
+'''
 data = [
 
 [1,2],[2,1],[2,2],[3,2],[2,3],[1,3],[3,1],[2,4],[4,2],[3,3],
@@ -111,7 +209,7 @@ data = [
 k=4
 clusters=mykmeans(data,k)
 clusters=clusters[0]
-neighs=myknn([4,4],data,5)
+neighs=myknn([4.2,3.9],data,5)
 
 print("----cluster1-----")
 print(clusters[0][0])
@@ -120,6 +218,76 @@ print(clusters[0][1])
 for i in range(len(clusters)):
     print("-----Cluster ",i,"-----------------")
     print(clusters[i])
-membership(clusters,neighs)
-
+mems=membership(clusters,neighs)
+superover(mems,[4.2,3.9],neighs)
+'''
 #myknn([40,70],data,2)
+########### LOAD THE CSV ####################################
+'''
+dataset=pd.read_csv("eeg_features.csv")
+#del dataset['subject_id']
+#del dataset['label']
+X=dataset.drop(columns=['subject_id','label'])
+Y=dataset['label']
+A3(dataset,X,Y)
+#making a test vector
+lst=[]
+for i in X:
+    #print(dataset[i].mean())
+    lst.append(dataset[i].mean())
+
+acc=A456(dataset,X,Y,lst,3)
+#print(dataset)
+#print(len(dataset.values.tolist()))
+lstformat=dataset.values.tolist()
+'''
+#OWN IMPLEMENTATIONS#    (without sklearn)
+'''
+df=pd.read_csv('eeg_features.csv')
+X=df.drop(columns=['subject_id','label'])
+Y=df['label']
+xt,xtst,yt,ytst=A3(df,X,Y)
+cp1,cp2=fitit(xt,yt)
+lst=[]
+for i in X:
+    #print(dataset[i].mean())
+    lst.append(df[i].mean())
+k=3
+predictit(lst,cp1,cp2,k)
+myscore(xtst,ytst,xt,yt,k)'''
+
+# A8 COMPARISION #
+# COMMON CODES
+dataset=pd.read_csv("eeg_features.csv")
+#del dataset['subject_id']
+#del dataset['label']
+X=dataset.drop(columns=['subject_id','label'])
+Y=dataset['label']
+xt,xtst,yt,ytst=A3(dataset,X,Y)
+# SKLEARN PART
+skacc=[]
+for i in range (1,6):
+    acc=A456(dataset,X,Y,i)
+    skacc.append(acc)
+# MY PART
+myacc=[]
+cp1,cp2=fitit(xt,yt)
+for i in range (1,6):
+    #predictit(xtst,cp1,cp2,i)
+    mac=myscore(xtst,ytst,xt,yt,i)
+    myacc.append(mac)
+plt.plot(skacc,marker='o',label='Sklearn')
+plt.plot(myacc,marker='o',label='My KNN')
+plt.legend()
+plt.xlabel("k")
+plt.ylabel("Accuracy")
+plt.title("KNN Accuracy vs k")
+plt.show()
+
+
+
+
+
+
+
+
