@@ -5,6 +5,30 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier as knn
 import matplotlib.pyplot as plt
 #def goodformat(df):
+def bubble(arr): #[5,2,6,4]
+    for k in range(len(arr)):
+        for i in range (len(arr)-1):
+            if arr[i]>arr[i+1]:
+                arr[i],arr[i+1]=arr[i+1],arr[i]
+    return arr
+
+def select(arr):
+    for i in range(len(arr)-1):
+        temp=arr[i]
+        for j in range(i+1,len(arr)):
+            if arr[j]<temp:
+                arr[i],arr[j]=arr[j],arr[i]
+    print(arr)
+
+def dataimput(data):  # THIS IS DATA IMPUTATION USING MEAN OF THAT COLUMN 
+    nmv=data.notnull()
+    #print(nmv)
+    for i in nmv:
+        for j in range(len(data[i])):
+            if nmv[i][j]==False:
+                data[i][j]=np.mean(nmv[i])
+    print(data)
+
 
 def minkymink(vec1,vec2,p):
     d=0
@@ -158,12 +182,12 @@ def predictit(xtest,cxtrain,cytrain,k):
     for i in range(len(neighs)):
         lbls.append(cytrain[neighs[i]])
     print(lbls)
-    scz=lbls.count('schizophrenia')
-    hel=lbls.count('healthy')
+    scz=lbls.count(1)
+    hel=lbls.count(0)
     if scz>hel:
-        return "schizophrenia"
+        return 1
     else:
-        return "healthy"
+        return 0
 
 def myscore(xtest,ytest,xtrain,ytrain,k):
     #thepred=predictit(xtest,xtrain.values.tolist(),ytrain.tolist())
@@ -258,10 +282,11 @@ myscore(xtst,ytst,xt,yt,k)'''
 
 # A8 COMPARISION #
 # COMMON CODES
+'''
 dataset=pd.read_csv("eeg_features.csv")
 #del dataset['subject_id']
 #del dataset['label']
-X=dataset.drop(columns=['subject_id','label'])
+X=dataset.drop(columns=['subject','label'])
 Y=dataset['label']
 xt,xtst,yt,ytst=A3(dataset,X,Y)
 # SKLEARN PART
@@ -283,8 +308,23 @@ plt.xlabel("k")
 plt.ylabel("Accuracy")
 plt.title("KNN Accuracy vs k")
 plt.show()
-
-
+'''
+#simply running kmeans
+'''
+dataset=pd.read_csv("eeg_features.csv")
+#del dataset['subject_id']
+#del dataset['label']
+X=dataset.drop(columns=['subject','label'])
+print(X)
+'''
+#sortings
+'''
+arr=[5,6,2,1,7]
+select(arr)
+'''
+#data imputation
+dataset=pd.read_csv("eeg_features.csv")
+dataimput(dataset)
 
 
 
