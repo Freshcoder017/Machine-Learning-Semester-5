@@ -144,6 +144,7 @@ def superover(members,target,neighs):
             val=scores[i]
             clus=i
     #print(clus)
+    #print("Belongs to ",clus)
     return clus
 
 # SCIKIT LEARN STUFF
@@ -181,7 +182,7 @@ def predictit(xtest,cxtrain,cytrain,k):
     lbls=[]
     for i in range(len(neighs)):
         lbls.append(cytrain[neighs[i]])
-    print(lbls)
+    #print(lbls)
     scz=lbls.count(1)
     hel=lbls.count(0)
     if scz>hel:
@@ -233,7 +234,7 @@ data = [
 k=4
 clusters=mykmeans(data,k)
 clusters=clusters[0]
-neighs=myknn([4.2,3.9],data,5)
+neighs=myknn([4.2,3.9],data,5,2)
 
 print("----cluster1-----")
 print(clusters[0][0])
@@ -244,8 +245,9 @@ for i in range(len(clusters)):
     print(clusters[i])
 mems=membership(clusters,neighs)
 superover(mems,[4.2,3.9],neighs)
-'''
+
 #myknn([40,70],data,2)
+'''
 ########### LOAD THE CSV ####################################
 '''
 dataset=pd.read_csv("eeg_features.csv")
@@ -266,9 +268,9 @@ acc=A456(dataset,X,Y,lst,3)
 lstformat=dataset.values.tolist()
 '''
 #OWN IMPLEMENTATIONS#    (without sklearn)
-'''
+
 df=pd.read_csv('eeg_features.csv')
-X=df.drop(columns=['subject_id','label'])
+X=df.drop(columns=['subject','label'])
 Y=df['label']
 xt,xtst,yt,ytst=A3(df,X,Y)
 cp1,cp2=fitit(xt,yt)
@@ -277,8 +279,12 @@ for i in X:
     #print(dataset[i].mean())
     lst.append(df[i].mean())
 k=3
-predictit(lst,cp1,cp2,k)
-myscore(xtst,ytst,xt,yt,k)'''
+lol=predictit(lst,cp1,cp2,k)
+if lol==1:
+    print("Test subject belongs to schizophrenia")
+else:
+    print("Healthy")
+myscore(xtst,ytst,xt,yt,k)
 
 # A8 COMPARISION #
 # COMMON CODES
@@ -323,9 +329,10 @@ arr=[5,6,2,1,7]
 select(arr)
 '''
 #data imputation
+'''
 dataset=pd.read_csv("eeg_features.csv")
 dataimput(dataset)
-
+'''
 
 
 
