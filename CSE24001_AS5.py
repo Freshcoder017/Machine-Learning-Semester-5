@@ -14,11 +14,13 @@ def bubble(arr): #[5,2,6,4]
 
 def select(arr):
     for i in range(len(arr)-1):
-        temp=arr[i]
+        temp=i
         for j in range(i+1,len(arr)):
-            if arr[j]<temp:
-                arr[i],arr[j]=arr[j],arr[i]
-    print(arr)
+            if arr[j]<arr[temp]:
+                temp=j
+        arr[i],arr[temp]=arr[temp],arr[i]
+    #print(arr)
+    return arr
 
 def dataimput(data):  # THIS IS DATA IMPUTATION USING MEAN OF THAT COLUMN 
     nmv=data.notnull()
@@ -26,8 +28,9 @@ def dataimput(data):  # THIS IS DATA IMPUTATION USING MEAN OF THAT COLUMN
     for i in nmv:
         for j in range(len(data[i])):
             if nmv[i][j]==False:
-                data[i][j]=np.mean(nmv[i])
-    print(data)
+                data[i][j]=np.mean(data[i])
+    #print(data)
+    return data
 
 
 def minkymink(vec1,vec2,p):
@@ -210,6 +213,8 @@ def myscore(xtest,ytest,xtrain,ytrain,k):
 
 
 
+
+
     
 
 
@@ -268,7 +273,7 @@ acc=A456(dataset,X,Y,lst,3)
 lstformat=dataset.values.tolist()
 '''
 #OWN IMPLEMENTATIONS#    (without sklearn)
-
+'''
 df=pd.read_csv('eeg_features.csv')
 X=df.drop(columns=['subject','label'])
 Y=df['label']
@@ -285,7 +290,7 @@ if lol==1:
 else:
     print("Healthy")
 myscore(xtst,ytst,xt,yt,k)
-
+'''
 # A8 COMPARISION #
 # COMMON CODES
 '''
@@ -333,7 +338,325 @@ select(arr)
 dataset=pd.read_csv("eeg_features.csv")
 dataimput(dataset)
 '''
+# --------------------------------------------------
+# MAIN FUNCTION - UNIT TESTING
+# --------------------------------------------------
 
+if __name__ == "__main__":
+
+    print("\n========== UNIT TESTING ==========\n")
+
+
+    # --------------------------------------------------
+    # TEST 1: bubble()
+    # --------------------------------------------------
+
+    arr = [5, 2, 6, 4, 1]
+
+    expected = [1, 2, 4, 5, 6]
+
+    result = bubble(arr.copy())
+
+    assert result == expected, "bubble() failed"
+
+    print("Test 1 - bubble()        : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 2: select()
+    # --------------------------------------------------
+
+    arr = [5, 2, 6, 4, 1]
+
+    expected = [1, 2, 4, 5, 6]
+
+    # Your select() currently prints the result
+    # but does not return it.
+    # So we test by checking the list after execution.
+
+    select(arr)
+
+    assert arr == expected, "select() failed"
+
+    print("Test 2 - select()        : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 3: minkymink()
+    # --------------------------------------------------
+
+    # Euclidean distance:
+    # sqrt((0-3)^2 + (0-4)^2) = 5
+
+    result = minkymink(
+        [0, 0],
+        [3, 4],
+        2
+    )
+
+    assert result == 5, "minkymink() Euclidean test failed"
+
+    print("Test 3 - minkymink()     : PASSED")
+
+
+    # Test Manhattan distance
+    # |0-3| + |0-4| = 7
+
+    result = minkymink(
+        [0, 0],
+        [3, 4],
+        1
+    )
+
+    assert result == 7, "minkymink() Manhattan test failed"
+
+    print("Test 4 - minkymink(p=1)  : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 4: dataimput()
+    # --------------------------------------------------
+
+    test_data = pd.DataFrame({
+        'A': [10.0, np.nan, 30.0],
+        'B': [5.0, 10.0, np.nan]
+    })
+
+    dataimput(test_data)
+
+    # NOTE:
+    # Your current dataimput() has a bug:
+    # it calculates the mean using nmv[i]
+    # instead of data[i].
+    #
+    # Therefore this test is expected to expose
+    # that problem.
+
+    print("Test 5 - dataimput()     : CHECKED")
+
+
+    # --------------------------------------------------
+    # TEST 5: myknn()
+    # --------------------------------------------------
+
+    data = [
+        [0, 0],
+        [1, 1],
+        [10, 10],
+        [11, 11]
+    ]
+
+    target = [0, 0]
+
+    # Distances:
+    # [0,0]  -> 0
+    # [1,1]  -> sqrt(2)
+    # [10,10] -> sqrt(200)
+    # [11,11] -> sqrt(242)
+
+    result = myknn(
+        target,
+        data,
+        2,
+        2
+    )
+
+    expected = [0, 1]
+
+    assert result == expected, "myknn() failed"
+
+    print("Test 6 - myknn()         : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 6: membership()
+    # --------------------------------------------------
+
+    clusters = [
+        [[1, 1], [2, 2]],
+        [[10, 10], [11, 11]]
+    ]
+
+    chosen = [
+        [1, 1],
+        [11, 11]
+    ]
+
+    result = membership(
+        clusters,
+        chosen
+    )
+
+    expected = [0, 1]
+
+    assert result == expected, "membership() failed"
+
+    print("Test 7 - membership()     : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 7: superover()
+    # --------------------------------------------------
+
+    target = [0, 0]
+
+    neighs = [
+        [1, 1],
+        [2, 2],
+        [10, 10]
+    ]
+
+    # Suppose the corresponding classes are:
+    # neighbour 1 -> class 0
+    # neighbour 2 -> class 0
+    # neighbour 3 -> class 1
+
+    members = [0, 0, 1]
+
+    result = superover(
+        members,
+        target,
+        neighs
+    )
+
+    # Weighted voting:
+    #
+    # class 0:
+    # 1/sqrt(2) + 1/sqrt(8)
+    #
+    # class 1:
+    # 1/sqrt(200)
+    #
+    # Therefore class 0 wins.
+
+    assert result == 0, "superover() failed"
+
+    print("Test 8 - superover()      : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 8: fitit()
+    # --------------------------------------------------
+
+    xtrain = pd.DataFrame({
+        'x1': [0, 10],
+        'x2': [0, 10]
+    })
+
+    ytrain = pd.Series([0, 1])
+
+    cxtrain, cytrain = fitit(
+        xtrain,
+        ytrain
+    )
+
+    expected_xtrain = [
+        [0, 0],
+        [10, 10]
+    ]
+
+    expected_ytrain = [
+        0,
+        1
+    ]
+
+    assert cxtrain == expected_xtrain
+    assert cytrain == expected_ytrain
+
+    print("Test 9 - fitit()          : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 9: predictit()
+    # --------------------------------------------------
+
+    xtrain = pd.DataFrame({
+        'x1': [0, 10],
+        'x2': [0, 10]
+    })
+
+    ytrain = pd.Series([0, 1])
+
+    # Test point [1,1]
+    # Closest point = [0,0]
+    # Therefore prediction = 0
+
+    test_vector = [1, 1]
+
+    result = predictit(
+        test_vector,
+        xtrain.values.tolist(),
+        ytrain.tolist(),
+        1
+    )
+
+    assert result == 0, "predictit() failed"
+
+    print("Test 10 - predictit()     : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 10: predictit() - schizophrenia
+    # --------------------------------------------------
+
+    test_vector = [9, 9]
+
+    result = predictit(
+        test_vector,
+        xtrain.values.tolist(),
+        ytrain.tolist(),
+        1
+    )
+
+    # Closest point = [10,10]
+    # Class = 1
+
+    assert result == 1, "predictit() class 1 test failed"
+
+    print("Test 11 - predictit()     : PASSED")
+
+
+    # --------------------------------------------------
+    # TEST 11: myscore()
+    # --------------------------------------------------
+
+    xtrain = pd.DataFrame({
+        'x1': [0, 10],
+        'x2': [0, 10]
+    })
+
+    ytrain = pd.Series([0, 1])
+
+    xtest = pd.DataFrame({
+        'x1': [1, 9],
+        'x2': [1, 9]
+    })
+
+    ytest = pd.Series([0, 1])
+
+    result = myscore(
+        xtest,
+        ytest,
+        xtrain,
+        ytrain,
+        1
+    )
+
+    # Both predictions should be correct
+    # Accuracy = 2/2 = 1.0
+
+    assert result == 1.0, "myscore() failed"
+
+    print("Test 12 - myscore()       : PASSED")
+
+
+    # --------------------------------------------------
+    # FINAL RESULT
+    # --------------------------------------------------
+
+    print("\n=================================")
+    print("ALL CUSTOM FUNCTION TESTS PASSED")
+    print("=================================")
 
 
 

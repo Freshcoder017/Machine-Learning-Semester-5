@@ -738,7 +738,7 @@ plt.show()
 # --------------------------------------------------
 # MAIN FUNCTION
 # --------------------------------------------------
-
+'''
 dataset = pd.read_csv("eeg_features.csv")
 
 dataset = encode(dataset)
@@ -925,4 +925,226 @@ plt.xticks(list(k_values))
 plt.legend()
 plt.grid(True)
 
-plt.show()
+plt.show()'''
+# --------------------------------------------------
+# MAIN FUNCTION
+# --------------------------------------------------
+
+if __name__ == "__main__":
+
+    print("Running test cases...")
+    print("-----------------------------------------------")
+
+    # ==============================================
+    # TEST 1: distance()
+    # ==============================================
+
+    result = distance([0, 0], [3, 4])
+
+    assert result == 5, "distance() test failed"
+
+    print("Test 1: distance()             PASSED")
+
+
+    # ==============================================
+    # TEST 2: distance() with same vectors
+    # ==============================================
+
+    result = distance([1, 2, 3], [1, 2, 3])
+
+    assert result == 0, "distance() same vector test failed"
+
+    print("Test 2: distance() same vector PASSED")
+
+
+    # ==============================================
+    # TEST 3: bubble_sort()
+    # ==============================================
+
+    arr = [
+        (5, 1),
+        (2, 0),
+        (8, 1),
+        (1, 0)
+    ]
+
+    expected = [
+        (1, 0),
+        (2, 0),
+        (5, 1),
+        (8, 1)
+    ]
+
+    result = bubble_sort(arr)
+
+    assert result == expected, "bubble_sort() test failed"
+
+    print("Test 3: bubble_sort()           PASSED")
+
+
+    # ==============================================
+    # TEST 4: selection_sort()
+    # ==============================================
+
+    arr = [
+        (7, 1),
+        (3, 0),
+        (9, 1),
+        (1, 0)
+    ]
+
+    expected = [
+        (1, 0),
+        (3, 0),
+        (7, 1),
+        (9, 1)
+    ]
+
+    result = selection_sort(arr)
+
+    assert result == expected, "selection_sort() test failed"
+
+    print("Test 4: selection_sort()        PASSED")
+
+
+    # ==============================================
+    # TEST 5: merge_sort()
+    # ==============================================
+
+    arr = [
+        (6, 1),
+        (2, 0),
+        (9, 1),
+        (4, 0)
+    ]
+
+    expected = [
+        (2, 0),
+        (4, 0),
+        (6, 1),
+        (9, 1)
+    ]
+
+    result = merge_sort(arr)
+
+    assert result == expected, "merge_sort() test failed"
+
+    print("Test 5: merge_sort()            PASSED")
+
+
+    # ==============================================
+    # TEST 6: data_imputation()
+    # ==============================================
+
+    test_data = pd.DataFrame({
+        'subject': ['S1', 'S2', 'S3'],
+        'label': [0, 1, 0],
+        'feature1': [10.0, np.nan, 30.0],
+        'feature2': [5.0, 10.0, np.nan]
+    })
+
+    result = data_imputation(test_data)
+
+    # feature1 mean = 20
+    assert result.loc[1, 'feature1'] == 20.0
+
+    # feature2 mean = 7.5
+    assert result.loc[2, 'feature2'] == 7.5
+
+    # No missing values
+    assert not result.isnull().values.any()
+
+    print("Test 6: data_imputation()       PASSED")
+
+
+    # ==============================================
+    # TEST 7: encode()
+    # ==============================================
+
+    test_data = pd.DataFrame({
+        'subject': ['S1', 'S2'],
+        'label': [0, 1],
+        'feature1': [1.5, 2.5]
+    })
+
+    result = encode(test_data)
+
+    assert result.equals(test_data)
+
+    print("Test 7: encode()                 PASSED")
+
+
+    # ==============================================
+    # TEST 8: fitit()
+    # ==============================================
+
+    xtrain = pd.DataFrame({
+        'f1': [0, 10],
+        'f2': [0, 10]
+    })
+
+    ytrain = pd.Series([0, 1])
+
+    cxtrain, cytrain = fitit(
+        xtrain,
+        ytrain
+    )
+
+    assert cxtrain.equals(xtrain)
+    assert cytrain.equals(ytrain)
+
+    print("Test 8: fitit()                  PASSED")
+
+
+    # ==============================================
+    # TEST 9: predictit()
+    # ==============================================
+
+    xtest = pd.DataFrame({
+        'f1': [1],
+        'f2': [1]
+    })
+
+    predictions = predictit(
+        xtest,
+        xtrain,
+        ytrain,
+        1
+    )
+
+    # Closest point is [0,0] → class 0
+    assert predictions == [0]
+
+    print("Test 9: predictit()              PASSED")
+
+
+    # ==============================================
+    # TEST 10: myscore()
+    # ==============================================
+
+    xtest = pd.DataFrame({
+        'f1': [1, 9],
+        'f2': [1, 9]
+    })
+
+    ytest = pd.Series([0, 1])
+
+    score = myscore(
+        xtest,
+        ytest,
+        xtrain,
+        ytrain,
+        1
+    )
+
+    assert score == 1.0
+
+    print("Test 10: myscore()               PASSED")
+
+
+    # ==============================================
+    # ALL TESTS PASSED
+    # ==============================================
+
+    print("-----------------------------------------------")
+    print("All test cases PASSED!")
